@@ -5,9 +5,6 @@ require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
-
-
-
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -23,26 +20,39 @@ const client = new MongoClient(uri, {
   },
 });
 
-
 async function run() {
   try {
-    const marathonCollection = client.db("marathonsDB").collection("marathons");
+    //  await client.connect();
+
+    const marathonCollection = client.db("marathonDB").collection("marathon");
+
+
+    // marathon call 
+    app.get("/marathon", async (req, res) => {
+      const marathons = await marathonCollection.find().toArray();
+      res.send(marathons);
+    });
 
 
 
 
 
 
+    // Add marathon data on mongodb database
+    app.post("/marathon", async (req, res) => {
+      const newMarathon = req.body;
 
+      //   const nextDate = new Date(newPlants.NextWateringDate);
+      //   newPlants.NextWateringDate = nextDate
+      //   console.log(newPlants);
 
+      const result = await marathonCollection.insertOne(newMarathon);
+      //   res.send(result);
+      res.status(201).send({ ...result, message: "Data pai ce" });
+      console.log(newMarathon);
+    });
 
-
-
-
-
-
-
-        await client.db("admin").command({ ping: -1 });
+    await client.db("admin").command({ ping: -1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
