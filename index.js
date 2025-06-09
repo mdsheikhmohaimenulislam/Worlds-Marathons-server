@@ -27,6 +27,10 @@ async function run() {
     const marathonCollection = client.db("marathonDB").collection("marathon");
 
     // marathon call
+    app.get("/marathon", async (req, res) => {
+      const marathons = await marathonCollection.find().toArray();
+      res.send(marathons);
+    });
 
 
     // Add marathon data on mongodb database
