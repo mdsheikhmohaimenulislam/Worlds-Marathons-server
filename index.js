@@ -32,13 +32,41 @@ async function run() {
       res.send(marathons);
     });
 
+
+
+    // singleDetails section
+    app.get("/marathon/:id", async (req, res) => {
+      const id = req.params.id;
+
+      try {
+        const objectId = new ObjectId(id);
+        const marathon = await marathonCollection.findOne({ _id: objectId });
+
+        if (!marathon) {
+          return res.status(404).send({ message: "marathon not found" });
+        }
+
+        res.send(marathon);
+      } catch (error) {
+        // Invalid ObjectId format
+        return res.status(400).send({ message: "Invalid ID format" });
+      }
+    });
+
+
+
+
     // Add marathon data on mongodb database
     app.post("/marathon", async (req, res) => {
       const newMarathon = req.body;
 
       //   date convert
-      newMarathon.StartRegistrationDate = new Date(newMarathon.StartRegistrationDate);
-      newMarathon.EndRegistrationDate = new Date(newMarathon.EndRegistrationDate);
+      newMarathon.StartRegistrationDate = new Date(
+        newMarathon.StartRegistrationDate
+      );
+      newMarathon.EndRegistrationDate = new Date(
+        newMarathon.EndRegistrationDate
+      );
       newMarathon.MarathonStartDate = new Date(newMarathon.MarathonStartDate);
       //   console.log(newMarathon);
 
