@@ -32,18 +32,15 @@ async function run() {
       res.send(marathons);
     });
 
-
     // Add marathon data on mongodb database
     app.post("/marathon", async (req, res) => {
       const newMarathon = req.body;
 
       //   date convert
-      const nextDate = new Date();
-      newMarathon.StartRegistrationDate = nextDate;
-      newMarathon.EndRegistrationDate = nextDate;
-      newMarathon.MarathonStartDate = nextDate;
-    //   console.log(newMarathon);
-
+      newMarathon.StartRegistrationDate = new Date(newMarathon.StartRegistrationDate);
+      newMarathon.EndRegistrationDate = new Date(newMarathon.EndRegistrationDate);
+      newMarathon.MarathonStartDate = new Date(newMarathon.MarathonStartDate);
+      //   console.log(newMarathon);
 
       const result = await marathonCollection.insertOne(newMarathon);
       //   res.send(result);
