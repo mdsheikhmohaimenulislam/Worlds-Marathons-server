@@ -26,25 +26,20 @@ async function run() {
 
     const marathonCollection = client.db("marathonDB").collection("marathon");
 
-
-    // marathon call 
-    app.get("/marathon", async (req, res) => {
-      const marathons = await marathonCollection.find().toArray();
-      res.send(marathons);
-    });
-
-
-
-
+    // marathon call
 
 
     // Add marathon data on mongodb database
     app.post("/marathon", async (req, res) => {
       const newMarathon = req.body;
 
-      //   const nextDate = new Date(newPlants.NextWateringDate);
-      //   newPlants.NextWateringDate = nextDate
-      //   console.log(newPlants);
+      //   date convert
+      const nextDate = new Date();
+      newMarathon.StartRegistrationDate = nextDate;
+      newMarathon.EndRegistrationDate = nextDate;
+      newMarathon.MarathonStartDate = nextDate;
+    //   console.log(newMarathon);
+
 
       const result = await marathonCollection.insertOne(newMarathon);
       //   res.send(result);
