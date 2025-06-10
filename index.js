@@ -25,14 +25,15 @@ async function run() {
     //  await client.connect();
 
     const marathonCollection = client.db("marathonDB").collection("marathon");
+    const registrationCollection = client
+      .db("marathonDB")
+      .collection("registration");
 
     // marathon call
     app.get("/marathon", async (req, res) => {
       const marathons = await marathonCollection.find().toArray();
       res.send(marathons);
     });
-
-
 
     // singleDetails section
     app.get("/marathon/:id", async (req, res) => {
@@ -53,9 +54,6 @@ async function run() {
       }
     });
 
-
-
-
     // Add marathon data on mongodb database
     app.post("/marathon", async (req, res) => {
       const newMarathon = req.body;
@@ -73,8 +71,21 @@ async function run() {
       const result = await marathonCollection.insertOne(newMarathon);
       //   res.send(result);
       res.status(201).send({ ...result, message: "Data pai ce" });
-      console.log(newMarathon);
+      //   console.log(newMarathon);
     });
+
+
+
+
+    // Add registration data on mongodb database
+    app.post("/registration", async (req, res) => {
+      const newRegistration = req.body;
+      const result = await registrationCollection.insertOne(newRegistration);
+      res.status(201).send({ ...result, message: "Data pai ce" });
+      // console.log(result);
+    });
+
+    
 
     await client.db("admin").command({ ping: -1 });
     console.log(
