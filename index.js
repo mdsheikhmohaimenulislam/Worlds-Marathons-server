@@ -81,6 +81,34 @@ async function run() {
     });
 
 
+    // Update Marathon
+    app.put("/marathon/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateMarathon = req.body;
+
+        //   date convert
+      updateMarathon.StartRegistrationDate = new Date(
+        updateMarathon.StartRegistrationDate
+      );
+      updateMarathon.EndRegistrationDate = new Date(
+        updateMarathon.EndRegistrationDate
+      );
+      updateMarathon.MarathonStartDate = new Date(updateMarathon.MarathonStartDate);
+
+      const updateDoc = {
+        $set: updateMarathon,
+      };
+      const result = await marathonCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+
 
     //? User section
 
