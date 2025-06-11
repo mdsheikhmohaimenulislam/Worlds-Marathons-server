@@ -72,20 +72,22 @@ async function run() {
       //   console.log(newMarathon);
     });
 
-
-
-
-
     // display data
     app.get("/users", async (req, res) => {
-      const result = await usersCollection.find().toArray();
-      console.log(result);
+      const email = req.query.email;
+
+       // email data find
+       const query = email ? { email } : {}; 
+
+      const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
 
+   
+
     // Add registration data on mongodb database
     app.post("/users", async (req, res) => {
-      const newUsers= req.body;
+      const newUsers = req.body;
       const result = await usersCollection.insertOne(newUsers);
       res.status(201).send({ ...result, message: "Data pai ce" });
       console.log(result);
