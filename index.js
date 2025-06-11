@@ -72,18 +72,28 @@ async function run() {
       //   console.log(newMarathon);
     });
 
+    // Deleted section
+    app.delete("/marathon/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = marathonCollection.deleteOne(query);
+      res.send(result);
+    });
+
+
+
+    //? User section
+
     // display data
     app.get("/users", async (req, res) => {
       const email = req.query.email;
 
-       // email data find
-       const query = email ? { email } : {}; 
+      // email data find
+      const query = email ? { email } : {};
 
       const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
-
-   
 
     // Add registration data on mongodb database
     app.post("/users", async (req, res) => {
