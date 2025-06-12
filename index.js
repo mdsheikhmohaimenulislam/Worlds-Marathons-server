@@ -131,6 +131,41 @@ async function run() {
       console.log(result);
     });
 
+
+
+        // Update users
+    app.put("/users/:id", async (req, res) => {
+        //  console.log("PUT /users/:id hit"); // ✅ Check if this logs
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateUsers = req.body;
+
+        //   date convert
+    //   updateMarathon.StartRegistrationDate = new Date(
+    //     updateMarathon.StartRegistrationDate
+    //   );
+    //   updateMarathon.EndRegistrationDate = new Date(
+    //     updateMarathon.EndRegistrationDate
+    //   );
+      updateUsers.MarathonStartDate = new Date(updateUsers.MarathonStartDate);
+
+      const updateDoc = {
+        $set: updateUsers,
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    //   console.log(result);
+    });
+
+
+
+
+
     await client.db("admin").command({ ping: -1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
