@@ -112,6 +112,16 @@ async function run() {
 
     //? User section
 
+        // New Marathon Sort section
+    app.get("/new-marathon", async (req, res) => {
+      const result = await marathonCollection
+        .find({})
+        .sort({ _id: -1 })
+        .limit(6)
+        .toArray();
+      res.send(result);
+    });
+
     // display data
     app.get("/users", async (req, res) => {
       const email = req.query.email;
