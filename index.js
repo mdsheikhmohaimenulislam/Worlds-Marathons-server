@@ -80,7 +80,6 @@ async function run() {
       res.send(result);
     });
 
-
     // Update Marathon
     app.put("/marathon/:id", async (req, res) => {
       const id = req.params.id;
@@ -88,14 +87,16 @@ async function run() {
       const options = { upsert: true };
       const updateMarathon = req.body;
 
-        //   date convert
+      //   date convert
       updateMarathon.StartRegistrationDate = new Date(
         updateMarathon.StartRegistrationDate
       );
       updateMarathon.EndRegistrationDate = new Date(
         updateMarathon.EndRegistrationDate
       );
-      updateMarathon.MarathonStartDate = new Date(updateMarathon.MarathonStartDate);
+      updateMarathon.MarathonStartDate = new Date(
+        updateMarathon.MarathonStartDate
+      );
 
       const updateDoc = {
         $set: updateMarathon,
@@ -108,11 +109,9 @@ async function run() {
       res.send(result);
     });
 
-
-
     //? User section
 
-        // New Marathon Sort section
+    // New Marathon Sort section
     app.get("/new-marathon", async (req, res) => {
       const result = await marathonCollection
         .find({})
@@ -125,9 +124,20 @@ async function run() {
     // display data
     app.get("/users", async (req, res) => {
       const email = req.query.email;
+      const searchParams = req.query.searchParams;
+
+      let query = {};
 
       // email data find
-      const query = email ? { email } : {};
+      if (email) {
+        query.email = email;
+      }
+      // Search
+      if (searchParams) {
+        query = {
+          displayName: { $regex: searchParams, $options: "i" },
+        };
+      }
 
       const result = await usersCollection.find(query).toArray();
       res.send(result);
@@ -138,26 +148,24 @@ async function run() {
       const newUsers = req.body;
       const result = await usersCollection.insertOne(newUsers);
       res.status(201).send({ ...result, message: "Data pai ce" });
-      console.log(result);
+      // console.log(result);
     });
 
-
-
-        // Update users
+    // Update users
     app.put("/users/:id", async (req, res) => {
-        //  console.log("PUT /users/:id hit"); // ✅ Check if this logs
+      //  console.log("PUT /users/:id hit"); // ✅ Check if this logs
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
       const updateUsers = req.body;
 
-        //   date convert
-    //   updateMarathon.StartRegistrationDate = new Date(
-    //     updateMarathon.StartRegistrationDate
-    //   );
-    //   updateMarathon.EndRegistrationDate = new Date(
-    //     updateMarathon.EndRegistrationDate
-    //   );
+      //   date convert
+      //   updateMarathon.StartRegistrationDate = new Date(
+      //     updateMarathon.StartRegistrationDate
+      //   );
+      //   updateMarathon.EndRegistrationDate = new Date(
+      //     updateMarathon.EndRegistrationDate
+      //   );
       updateUsers.MarathonStartDate = new Date(updateUsers.MarathonStartDate);
 
       const updateDoc = {
@@ -169,19 +177,16 @@ async function run() {
         options
       );
       res.send(result);
-    //   console.log(result);
+      //   console.log(result);
     });
 
-
-        // Deleted section
+    // Deleted section
     app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = usersCollection.deleteOne(query);
       res.send(result);
     });
-
-
 
     await client.db("admin").command({ ping: -1 });
     console.log(
