@@ -20,6 +20,22 @@ const client = new MongoClient(uri, {
   },
 });
 
+
+const verifyFireBaseToken = async (req,res,next) => {
+
+  const authHeader = req.headers?.authorization;
+  console.log(authHeader);
+   
+  if(!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).send({ message: 'Unauthorized Access'})
+  }
+
+  const token = authHeader.split(' ')[1];
+  console.log(token);
+
+ next();
+}
+
 async function run() {
   try {
     //  await client.connect();
@@ -28,7 +44,8 @@ async function run() {
     const usersCollection = client.db("marathonDB").collection("users");
 
     // marathon call
-    app.get("/marathon", async (req, res) => {
+    app.get("/marathon", verifyFireBaseToken, async (req, res) => {
+     
       const marathons = await marathonCollection.find().toArray();
       res.send(marathons);
     });
@@ -159,13 +176,6 @@ async function run() {
       const options = { upsert: true };
       const updateUsers = req.body;
 
-      //   date convert
-      //   updateMarathon.StartRegistrationDate = new Date(
-      //     updateMarathon.StartRegistrationDate
-      //   );
-      //   updateMarathon.EndRegistrationDate = new Date(
-      //     updateMarathon.EndRegistrationDate
-      //   );
       updateUsers.MarathonStartDate = new Date(updateUsers.MarathonStartDate);
 
       const updateDoc = {
