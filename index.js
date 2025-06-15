@@ -4,6 +4,14 @@ const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
+// Firebase Admin SDK
+const admin = require("firebase-admin");
+
+const decoded = Buffer.from(process.env.FB_SERVICE_KEY, "base64").toString(
+  "utf8"
+);
+
+const serviceAccount = JSON.parse(decoded);
 
 // Middleware
 app.use(cors());
@@ -20,21 +28,39 @@ const client = new MongoClient(uri, {
   },
 });
 
+// Firebase Admin SDK
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
-const verifyFireBaseToken = async (req,res,next) => {
-
+const verifyFireBaseToken = async (req, res, next) => {
   const authHeader = req.headers?.authorization;
-  console.log(authHeader);
-   
-  if(!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).send({ message: 'Unauthorized Access'})
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).send({ message: "Unauthorized Access" });
   }
 
-  const token = authHeader.split(' ')[1];
-  console.log(token);
+  const token = authHeader.split(" ")[1];
 
- next();
-}
+  // console.log("authHeader token",token);
+
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+
+    req.decoded = decoded;
+
+    next();
+  } catch (error) {
+    return res.status(401).send({ message: "Unauthorized Access" });
+  }
+};
+
+const verifyEmailToken = (req, res, next) => {
+  if (req.query.email !== req.decoded.email) {
+    return res.status(403).send({ message: "Forbidden Access" });
+  }
+  next();
+};
 
 async function run() {
   try {
@@ -44,8 +70,7 @@ async function run() {
     const usersCollection = client.db("marathonDB").collection("users");
 
     // marathon call
-    app.get("/marathon", verifyFireBaseToken, async (req, res) => {
-     
+    app.get("/marathon", async (req, res) => {
       const marathons = await marathonCollection.find().toArray();
       res.send(marathons);
     });
@@ -126,7 +151,7 @@ async function run() {
       res.send(result);
     });
 
-    //? User section
+    //! User section
 
     // New Marathon Sort section
     app.get("/new-marathon", async (req, res) => {
@@ -138,27 +163,34 @@ async function run() {
       res.send(result);
     });
 
-    // display data
-    app.get("/users", async (req, res) => {
-      const email = req.query.email;
-      const searchParams = req.query.searchParams;
+    //? display data
+    app.get(
+      "/users",
+      verifyFireBaseToken,
+      verifyEmailToken,
+      async (req, res) => {
+        const searchParams = req.query.searchParams;
+        const email = req.query.email;
 
-      let query = {};
+        // console.log("Query Email:", email);
+        // console.log(email);
+        // const userEmail = req.decoded.email;
+        let query = {};
 
-      // email data find
-      if (email) {
-        query.email = email;
+        // Filter by email if provided
+        if (email) {
+          query.email = email;
+        }
+
+        // Filter by name if search param provided
+        if (searchParams) {
+          query.displayName = { $regex: searchParams, $options: "i" };
+        }
+
+        const result = await usersCollection.find(query).toArray();
+        res.send(result);
       }
-      // Search
-      if (searchParams) {
-        query = {
-          displayName: { $regex: searchParams, $options: "i" },
-        };
-      }
-
-      const result = await usersCollection.find(query).toArray();
-      res.send(result);
-    });
+    );
 
     // Add registration data on mongodb database
     app.post("/users", async (req, res) => {
@@ -198,10 +230,10 @@ async function run() {
       res.send(result);
     });
 
-    await client.db("admin").command({ ping: -1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: -1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
   }
 }
