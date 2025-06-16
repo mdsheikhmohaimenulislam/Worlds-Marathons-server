@@ -69,30 +69,21 @@ async function run() {
     const marathonCollection = client.db("marathonDB").collection("marathon");
     const usersCollection = client.db("marathonDB").collection("users");
 
-    // marathon call
-    // app.get("/marathon", async (req, res) => {
-    //   const dateConvert = req.body;
-    //   dateConvert.createdAt = new Date(dateConvert.createdAt);
+    app.get("/marathon", verifyFireBaseToken, async (req, res) => {
+      try {
+        const marathons = await marathonCollection
+          .find()
+          .sort({ createdAt: 1 }) // or -1 for latest first
+          .toArray();
 
-    //   const marathons = await marathonCollection.find().sort({ createdAt: 1 });
-    //   const result = await marathons.toArray();
-    //   res.send(result);
-    // });
-    app.get("/marathon", async (req, res) => {
-  try {
-    const marathons = await marathonCollection
-      .find()
-      .sort({ createdAt: 1 }) // or -1 for latest first
-      .toArray();
-
-    res.send(marathons);
-  } catch (error) {
-    res.status(500).send({ message: "Failed to fetch marathons", error });
-  }
-});
+        res.send(marathons);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to fetch marathons", error });
+      }
+    });
 
     // singleDetails section
-    app.get("/marathon/:id", async (req, res) => {
+    app.get("/marathon/:id", verifyFireBaseToken, async (req, res) => {
       const id = req.params.id;
 
       try {
@@ -168,10 +159,8 @@ async function run() {
       res.send(result);
     });
 
-    //! User section
-
     // New Marathon Sort section
-    app.get("/new-marathon", async (req, res) => {
+    app.get("/new-marathon", verifyFireBaseToken, async (req, res) => {
       const result = await marathonCollection
         .find({})
         .sort({ _id: -1 })
@@ -179,6 +168,8 @@ async function run() {
         .toArray();
       res.send(result);
     });
+
+    //! User section
 
     //? display data
     app.get(
