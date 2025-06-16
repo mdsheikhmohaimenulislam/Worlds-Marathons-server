@@ -70,10 +70,26 @@ async function run() {
     const usersCollection = client.db("marathonDB").collection("users");
 
     // marathon call
+    // app.get("/marathon", async (req, res) => {
+    //   const dateConvert = req.body;
+    //   dateConvert.createdAt = new Date(dateConvert.createdAt);
+
+    //   const marathons = await marathonCollection.find().sort({ createdAt: 1 });
+    //   const result = await marathons.toArray();
+    //   res.send(result);
+    // });
     app.get("/marathon", async (req, res) => {
-      const marathons = await marathonCollection.find().toArray();
-      res.send(marathons);
-    });
+  try {
+    const marathons = await marathonCollection
+      .find()
+      .sort({ createdAt: 1 }) // or -1 for latest first
+      .toArray();
+
+    res.send(marathons);
+  } catch (error) {
+    res.status(500).send({ message: "Failed to fetch marathons", error });
+  }
+});
 
     // singleDetails section
     app.get("/marathon/:id", async (req, res) => {
@@ -139,6 +155,7 @@ async function run() {
       updateMarathon.MarathonStartDate = new Date(
         updateMarathon.MarathonStartDate
       );
+      updateMarathon.createdAt = new Date(updateMarathon.createdAt);
 
       const updateDoc = {
         $set: updateMarathon,
