@@ -69,7 +69,7 @@ async function run() {
     const marathonCollection = client.db("marathonDB").collection("marathon");
     const usersCollection = client.db("marathonDB").collection("users");
 
-    app.get("/marathon", verifyFireBaseToken, async (req, res) => {
+    app.get("/marathon", async (req, res) => {
       try {
         const marathons = await marathonCollection
           .find()
@@ -160,7 +160,7 @@ async function run() {
     });
 
     // New Marathon Sort section
-    app.get("/new-marathon", verifyFireBaseToken, async (req, res) => {
+    app.get("/new-marathon",  async (req, res) => {
       const result = await marathonCollection
         .find({})
         .sort({ _id: -1 })
