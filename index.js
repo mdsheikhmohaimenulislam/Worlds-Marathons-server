@@ -113,6 +113,7 @@ async function run() {
         newMarathon.EndRegistrationDate
       );
       newMarathon.MarathonStartDate = new Date(newMarathon.MarathonStartDate);
+      newMarathon.createdAt = new Date(newMarathon.createdAt);
       //   console.log(newMarathon);
 
       const result = await marathonCollection.insertOne(newMarathon);
@@ -160,7 +161,7 @@ async function run() {
     });
 
     // New Marathon Sort section
-    app.get("/new-marathon",  async (req, res) => {
+    app.get("/new-marathon", async (req, res) => {
       const result = await marathonCollection
         .find({})
         .sort({ _id: -1 })
