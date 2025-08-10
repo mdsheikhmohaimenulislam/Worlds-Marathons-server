@@ -266,12 +266,12 @@ app.get("/user", async (req, res) => {
 });
 
     // Add registration data on mongodb database
-    // app.post("/users", async (req, res) => {
-    //   const newUsers = req.body;
-    //   const result = await usersCollection.insertOne(newUsers);
-    //   res.status(201).send({ ...result, message: "Data pai ce" });
-    //   // console.log(result);
-    // });
+    app.post("/users", async (req, res) => {
+      const newUsers = req.body;
+      const result = await usersCollection.insertOne(newUsers);
+      res.status(201).send({ ...result, message: "Data pai ce" });
+      // console.log(result);
+    });
 
     // Update users
     app.put("/users/:id", async (req, res) => {
