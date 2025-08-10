@@ -317,5 +317,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Simply World's Marathons server running on ${port}`);
+  // console.log(`Simply World's Marathons server running on ${port}`);
 });
