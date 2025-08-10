@@ -69,43 +69,35 @@ async function run() {
     const marathonCollection = client.db("marathonDB").collection("marathon");
     const usersCollection = client.db("marathonDB").collection("users");
 
+    app.get("/marathon", async (req, res) => {
+      const { search, sort } = req.query;
 
+      const query = {};
 
+      if (search) {
+        query.name = { $regex: search, $options: "i" }; // case-insensitive search by name
+      }
 
+      let sortOption = {};
 
+      if (sort === "asc") {
+        sortOption.StartRegistrationDate = 1; // ascending
+      } else if (sort === "desc") {
+        sortOption.StartRegistrationDate = -1; // descending
+      } else {
+        sortOption.createdAt = -1; // default: newest first
+      }
 
-
-app.get("/marathon", async (req, res) => {
-  const { search, sort } = req.query;
-
-  const query = {};
-
-  if (search) {
-    query.name = { $regex: search, $options: "i" }; // case-insensitive search by name
-  }
-
-  let sortOption = {};
-
-  if (sort === "asc") {
-    sortOption.StartRegistrationDate = 1; // ascending
-  } else if (sort === "desc") {
-    sortOption.StartRegistrationDate = -1; // descending
-  } else {
-    sortOption.createdAt = -1; // default: newest first
-  }
-
-  try {
-    const marathons = await marathonCollection.find(query).sort(sortOption).toArray();
-    res.json(marathons);
-  } catch (err) {
-    res.status(500).json({ error: "Server Error" });
-  }
-});
-
-
-
-
-
+      try {
+        const marathons = await marathonCollection
+          .find(query)
+          .sort(sortOption)
+          .toArray();
+        res.json(marathons);
+      } catch (err) {
+        res.status(500).json({ error: "Server Error" });
+      }
+    });
 
     // app.get("/marathon", async (req, res) => {
     //   const { search, sort } = req.query;
@@ -262,6 +254,16 @@ app.get("/marathon", async (req, res) => {
         res.send(result);
       }
     );
+
+app.get("/user", async (req, res) => {
+  try {
+    const allData = await usersCollection.find().toArray();
+    res.json(allData); //  send JSON
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
 
     // Add registration data on mongodb database
     app.post("/users", async (req, res) => {
