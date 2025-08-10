@@ -275,7 +275,7 @@ app.get("/user", async (req, res) => {
 
     // Update users
     app.put("/users/:id", async (req, res) => {
-      //  console.log("PUT /users/:id hit"); // ✅ Check if this logs
+      //  console.log("PUT /users/:id hit"); // Check if this logs
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
@@ -296,12 +296,12 @@ app.get("/user", async (req, res) => {
     });
 
     // Deleted section
-    app.delete("/users/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = usersCollection.deleteOne(query);
-      res.send(result);
-    });
+    // app.delete("/users/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: new ObjectId(id) };
+    //   const result = usersCollection.deleteOne(query);
+    //   res.send(result);
+    // });
 
     // await client.db("admin").command({ ping: -1 });
     // console.log(
